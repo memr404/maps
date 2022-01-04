@@ -37,8 +37,8 @@ if __name__ == '__main__':
 	draw = Draw(
 	   draw_options={
 		  'polyline':False,
-		  'rectangle':True,
-		  'polygon':True,
+		  'rectangle':False,
+		  'polygon':False,
 		  'circle':False,
 		  'marker':True,
 		  'circlemarker':False},
