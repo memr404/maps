@@ -7,8 +7,10 @@ import folium
 import requests
 import pandas as pd
 from PyQt5 import QtWidgets
+from string import Template
 import branca.colormap as cm
 from datetime import datetime
+from folium import MacroElement
 from branca.element import Figure
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from folium.features import GeoJson, GeoJsonTooltip, GeoJsonPopup
@@ -61,9 +63,29 @@ class MyApp(QWidget):
 
 		folium.LayerControl().add_to(m)
 
-		m.add_child(folium.LatLngPopup())
+		class LatLngPopup(MacroElement):
+			_template = Template(u"""
+					{% macro script(this, kwargs) %}
+						var {{this.get_name()}} = L.popup();
+						function latLngPop(e) {
+							{{this.get_name()}}
+								.setLatLng(e.latlng)
+								.setContent("Latitude: " + e.latlng.lat.toFixed(4) +
+											"<br>Longitude: " + e.latlng.lng.toFixed(4))
+								.openOn({{this._parent.get_name()}});
+							parent.document.getElementById("id_lng").value = e.latlng.lng.toFixed(4);
+							parent.document.getElementById("id_lat").value = e.latlng.lat.toFixed(4);
+							}
+						{{this._parent.get_name()}}.on('click', latLngPop);
+					{% endmacro %}
+					""")  # noqa
 
-		#m.rm_child()
+			def __init__(self):
+				super(LatLngPopup, self).__init__()
+				self._name = 'LatLngPopup'
+		
+		folium.LatLngPopup().add_to(m)
+		#m.add_child(folium.LatLngPopup())
 		#m.add_child(folium.ClickForMarker(popup="Метка")) # icon=folium.Icon(color="red"),
 		m
 		
